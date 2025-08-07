@@ -5,139 +5,127 @@ Contains the main MedicalChatbot class with all chatbot functionality.
 """
 
 import json
-import os
-from typing import Dict, List, Optional
-from .utils import EmergencyDetector, SymptomAnalyzer, HealthTopics
+import re
+from typing import Dict, List, Tuple
+import difflib
 
 
 class MedicalChatbot:
-    """Main Medical Chatbot class handling all interactions and responses."""
-    
-    def __init__(self, data_path: Optional[str] = None):
-        """
-        Initialize the Medical Chatbot.
+    def __init__(self):
+        self.emergency_keywords = [
+            'chest pain', 'heart attack', 'stroke', 'bleeding heavily', 'unconscious',
+            'difficulty breathing', 'severe allergic reaction', 'poisoning',
+            'severe burns', 'broken bone', 'suicide', 'overdose', 'choking',
+            'severe headache', 'paralysis', 'seizure'
+        ]
         
-        Args:
-            data_path (str, optional): Path to data directory containing JSON files
-        """
-        self.data_path = data_path or os.path.join(os.path.dirname(__file__), '..', 'data')
-        
-        # Initialize components
-        self.emergency_detector = EmergencyDetector()
-        self.symptom_analyzer = SymptomAnalyzer()
-        self.health_topics = HealthTopics()
-        
-        # Load configuration
-        self._load_config()
-    
-    def _load_config(self):
-        """Load chatbot configuration and settings."""
-        self.config = {
-            'max_response_length': 1000,
-            'emergency_priority': True,
-            'include_disclaimers': True,
-            'log_interactions': False
-        }
-    
-    def process_message(self, user_message: str, user_context: Optional[Dict] = None) -> Dict:
-        """
-        Process user message and generate appropriate response.
-        
-        Args:
-            user_message (str): User's input message
-            user_context (dict, optional): Additional user context
-            
-        Returns:
-            dict: Response containing message, type, and metadata
-        """
-        if not user_message.strip():
-            return self._get_default_response()
-        
-        # Check for emergency first (highest priority)
-        if self.emergency_detector.detect_emergency(user_message):
-            return self._get_emergency_response()
-        
-        # Try symptom analysis
-        symptom_matches = self.symptom_analyzer.analyze_symptoms(user_message)
-        if symptom_matches:
-            return self._format_symptom_response({'possible_causes': [m['condition'] for m in symptom_matches]})
-        
-        # Try health topic information
-        health_info = self.health_topics.get_topic_info(user_message)
-        if health_info:
-            return self._format_health_response({'info': health_info})
-        
-        # Default general response
-        return self._get_general_response(user_message)
-    
-    def _get_emergency_response(self) -> Dict:
-        """Generate emergency response."""
-        return {
-            'message': """🚨 **EMERGENCY DETECTED** 🚨
-            
-If this is a medical emergency, please:
-• Call emergency services immediately (911 in US, 102 in India)
-• Go to the nearest emergency room
-• Contact your local emergency number
-
-This chatbot cannot provide emergency medical care. Please seek immediate professional medical attention.""",
-            'type': 'emergency',
-            'priority': 'urgent',
-            'metadata': {
-                'emergency_contacts': {
-                    'US': '911',
-                    'India': '102',
-                    'UK': '999',
-                    'Australia': '000',
-                    'EU': '112'
-                }
+        self.symptoms_conditions = {
+            'fever': {
+                'possible_causes': ['Common cold', 'Flu', 'Infection', 'COVID-19'],
+                'advice': 'Rest, stay hydrated, monitor temperature. Seek medical care if fever exceeds 103°F or persists.',
+                'red_flags': ['High fever with severe headache', 'Difficulty breathing', 'Persistent vomiting']
+            },
+            'headache': {
+                'possible_causes': ['Tension headache', 'Migraine', 'Sinus infection', 'Dehydration'],
+                'advice': 'Rest in dark room, stay hydrated, consider over-the-counter pain relief.',
+                'red_flags': ['Sudden severe headache', 'Headache with fever and stiff neck', 'Vision changes']
+            },
+            'cough': {
+                'possible_causes': ['Common cold', 'Allergies', 'Bronchitis', 'Asthma'],
+                'advice': 'Stay hydrated, use humidifier, avoid irritants. Persistent cough needs evaluation.',
+                'red_flags': ['Coughing up blood', 'Severe difficulty breathing', 'High fever with cough']
+            },
+            'stomach pain': {
+                'possible_causes': ['Indigestion', 'Gas', 'Food poisoning', 'Gastritis'],
+                'advice': 'Eat bland foods, stay hydrated, avoid dairy and spicy foods.',
+                'red_flags': ['Severe abdominal pain', 'Vomiting blood', 'Signs of dehydration']
+            },
+            'sore throat': {
+                'possible_causes': ['Viral infection', 'Bacterial infection', 'Allergies', 'Dry air'],
+                'advice': 'Gargle with salt water, stay hydrated, use throat lozenges.',
+                'red_flags': ['Difficulty swallowing', 'High fever', 'Severe throat pain']
             }
         }
-    
-    def _format_symptom_response(self, symptom_data: Dict) -> Dict:
-        """Format symptom analysis response."""
-        response = f"""**Symptom Analysis: {symptom_data.get('symptom', '').title()}**
-
-**🔍 Possible Causes:**
-{chr(10).join(f'• {cause}' for cause in symptom_data.get('possible_causes', []))}
-
-**💡 General Advice:**
-{symptom_data.get('advice', 'Consult a healthcare professional.')}
-
-**⏱️ Typical Duration:**
-{symptom_data.get('duration', 'Varies depending on the cause.')}
-
-**⚠️ Warning Signs - Seek Medical Care If You Experience:**
-{chr(10).join(f'• {flag}' for flag in symptom_data.get('red_flags', []))}
-
-**👨‍⚕️ When to See a Doctor:**
-{symptom_data.get('when_to_see_doctor', 'Consult a healthcare provider if symptoms persist or worsen.')}
-
-**📋 Disclaimer:**
-This information is for educational purposes only and does not replace professional medical advice. Always consult a healthcare provider for diagnosis and treatment."""
         
-        return {
-            'message': response,
-            'type': 'symptom_analysis',
-            'priority': 'normal',
-            'metadata': symptom_data
+        self.health_topics = {
+            'nutrition': 'Eat a balanced diet with fruits, vegetables, whole grains, lean proteins, and healthy fats. Limit processed foods and sugar.',
+            'exercise': 'Adults should aim for at least 150 minutes of moderate aerobic activity weekly, plus strength training twice a week.',
+            'sleep': 'Adults need 7-9 hours of quality sleep nightly. Maintain consistent sleep schedule and good sleep hygiene.',
+            'stress management': 'Practice relaxation techniques, regular exercise, adequate sleep, and seek support when needed.',
+            'preventive care': 'Regular check-ups, vaccinations, screenings, and healthy lifestyle choices are key to prevention.'
         }
     
-    def _format_health_response(self, health_data: Dict) -> Dict:
-        """Format health information response."""
-        response = f"**Health Information:**\n\n{health_data.get('info', '')}\n\n**Note:** Consult healthcare providers for personalized advice."
+    def detect_emergency(self, message: str) -> bool:
+        """Detect if the message contains emergency keywords"""
+        message_lower = message.lower()
+        return any(keyword in message_lower for keyword in self.emergency_keywords)
+
+    def find_closest_symptom(self, user_input: str) -> str:
+        """Find the closest matching symptom using fuzzy matching"""
+        symptoms = list(self.symptoms_conditions.keys())
+        matches = difflib.get_close_matches(user_input.lower(), symptoms, n=1, cutoff=0.6)
+        return matches[0] if matches else None
+
+    def analyze_symptoms(self, symptoms: str) -> Dict:
+        """Analyze reported symptoms and provide information"""
+        symptoms_lower = symptoms.lower()
         
-        return {
-            'message': response,
-            'type': 'health_info',
-            'priority': 'normal',
-            'metadata': health_data
-        }
-    
-    def _get_general_response(self, user_message: str) -> Dict:
-        """Generate general chatbot response."""
-        return {
-            'message': """I'm a medical information chatbot designed to provide basic health information and symptom guidance.
+        # Check for exact matches first
+        for symptom in self.symptoms_conditions:
+            if symptom in symptoms_lower:
+                return self.symptoms_conditions[symptom]
+        
+        # Try fuzzy matching
+        closest_symptom = self.find_closest_symptom(symptoms)
+        if closest_symptom:
+            return self.symptoms_conditions[closest_symptom]
+        
+        return None
+
+    def get_health_info(self, topic: str) -> str:
+        """Get information about health topics"""
+        topic_lower = topic.lower()
+        for key, info in self.health_topics.items():
+            if key in topic_lower or topic_lower in key:
+                return info
+        return None
+
+    def generate_response(self, user_message: str) -> str:
+        """Generate appropriate response based on user input"""
+        
+        # Check for emergency
+        if self.detect_emergency(user_message):
+            return """🚨 **EMERGENCY DETECTED** 🚨
+            
+If this is a medical emergency, please:
+- Call emergency services immediately (911 in US, 102 in India)
+- Go to the nearest emergency room
+- Contact your local emergency number
+
+This chatbot cannot provide emergency medical care. Please seek immediate professional medical attention."""
+
+        # Check for symptom analysis
+        symptom_info = self.analyze_symptoms(user_message)
+        if symptom_info:
+            response = f"""**Symptom Analysis:**
+
+**Possible causes:** {', '.join(symptom_info['possible_causes'])}
+
+**General advice:** {symptom_info['advice']}
+
+**⚠️ Seek immediate medical attention if you experience:**
+{chr(10).join(f'• {flag}' for flag in symptom_info['red_flags'])}
+
+**Disclaimer:** This information is for educational purposes only and does not replace professional medical advice."""
+            return response
+
+        # Check for health information
+        health_info = self.get_health_info(user_message)
+        if health_info:
+            return f"**Health Information:**\n\n{health_info}\n\n**Note:** Consult healthcare providers for personalized advice."
+
+        # Default response for general queries
+        return """I'm a medical information chatbot designed to provide basic health information and symptom guidance.
 
 **I can help with:**
 • Symptom information and basic guidance
@@ -153,43 +141,4 @@ This information is for educational purposes only and does not replace professio
 
 **Please describe your symptoms or ask about a health topic I can help with.**
 
-**In case of emergency, call emergency services immediately!**""",
-            'type': 'general',
-            'priority': 'normal',
-            'metadata': {'user_input': user_message}
-        }
-    
-    def _get_default_response(self) -> Dict:
-        """Get default welcome response."""
-        return {
-            'message': "Hello! I'm your medical information assistant. How can I help you today?",
-            'type': 'welcome',
-            'priority': 'normal',
-            'metadata': {}
-        }
-    
-    def get_chat_history(self, session_id: str) -> List[Dict]:
-        """
-        Get chat history for a session (if logging is enabled).
-        
-        Args:
-            session_id (str): Session identifier
-            
-        Returns:
-            list: Chat history messages
-        """
-        # This would connect to a database or storage system in production
-        return []
-    
-    def clear_chat_history(self, session_id: str) -> bool:
-        """
-        Clear chat history for a session.
-        
-        Args:
-            session_id (str): Session identifier
-            
-        Returns:
-            bool: Success status
-        """
-        # This would clear from database or storage system in production
-        return True
+**In case of emergency, call emergency services immediately!**"""
