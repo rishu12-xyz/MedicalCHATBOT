@@ -1,0 +1,90 @@
+{
+  "fever": {
+    "possible_causes": [
+      "Common cold",
+      "Influenza (flu)",
+      "Bacterial infection",
+      "Viral infection",
+      "COVID-19",
+      "Urinary tract infection",
+      "Pneumonia"
+    ],
+    "advice": "Rest, stay hydrated with plenty of fluids, monitor temperature regularly. Take acetaminophen or ibuprofen as directed. Seek medical care if fever exceeds 103°F (39.4°C) or persists for more than 3 days.",
+    "red_flags": [
+      "High fever above 103°F (39.4°C)",
+      "Fever with severe headache and stiff neck",
+      "Difficulty breathing or shortness of breath",
+      "Persistent vomiting or dehydration",
+      "Severe abdominal pain",
+      "Confusion or altered mental state"
+    ],
+    "duration": "Usually 1-3 days for viral infections",
+    "when_to_see_doctor": "If fever persists beyond 3 days or exceeds 103°F"
+  },
+  "headache": {
+    "possible_causes": [
+      "Tension headache",
+      "Migraine",
+      "Sinus infection",
+      "Dehydration",
+      "Eye strain",
+      "Stress",
+      "Sleep deprivation"
+    ],
+    "advice": "Rest in a quiet, dark room. Stay hydrated. Apply cold or warm compress. Consider over-the-counter pain relievers like acetaminophen or ibuprofen. Practice relaxation techniques.",
+    "red_flags": [
+      "Sudden, severe headache (worst headache of your life)",
+      "Headache with fever, stiff neck, and rash",
+      "Headache with vision changes or loss",
+      "Headache after head injury",
+      "Progressive worsening headaches",
+      "Headache with weakness or numbness"
+    ],
+    "duration": "Tension headaches: hours to days; Migraines: 4-72 hours",
+    "when_to_see_doctor": "Sudden severe headache, recurring pattern changes, or with neurological symptoms"
+  },
+  "cough": {
+    "possible_causes": [
+      "Common cold",
+      "Allergies",
+      "Bronchitis",
+      "Asthma",
+      "Pneumonia",
+      "GERD (acid reflux)",
+      "Sinusitis"
+    ],
+    "advice": "Stay hydrated, use a humidifier, avoid irritants like smoke. Honey can help soothe throat. Elevate head while sleeping. Avoid cough suppressants for productive coughs.",
+    "red_flags": [
+      "Coughing up blood or pink-tinged sputum",
+      "Severe difficulty breathing",
+      "High fever with cough",
+      "Chest pain with coughing",
+      "Cough lasting more than 3 weeks",
+      "Wheezing or stridor"
+    ],
+    "duration": "Acute: 2-3 weeks; Chronic: more than 8 weeks",
+    "when_to_see_doctor": "Cough with blood, severe breathing difficulty, or persistent beyond 3 weeks"
+  },
+  "stomach pain": {
+    "possible_causes": [
+      "Indigestion",
+      "Gas and bloating",
+      "Food poisoning",
+      "Gastritis",
+      "Peptic ulcer",
+      "Irritable bowel syndrome",
+      "Appendicitis"
+    ],
+    "advice": "Eat bland foods, stay hydrated, avoid dairy and spicy foods. Consider over-the-counter antacids. Rest and avoid strenuous activity. Apply gentle heat to abdomen for comfort.",
+    "red_flags": [
+      "Severe or sharp abdominal pain",
+      "Vomiting blood or dark material",
+      "Blood in stool or black stool",
+      "Signs of severe dehydration",
+      "Fever with abdominal pain",
+      "Rigid or hard abdomen"
+    ],
+    "duration": "Acute: hours to days; Chronic: weeks to months",
+    "when_to_see_doctor": "Severe pain, signs of infection, or symptoms of dehydration"
+  }
+}

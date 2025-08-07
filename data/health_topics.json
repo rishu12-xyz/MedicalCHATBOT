@@ -1,0 +1,72 @@
+{
+    "nutrition": {
+        "info": "Eat a balanced diet with fruits, vegetables, whole grains, lean proteins, and healthy fats. Limit processed foods and sugar.",
+        "tips": [
+            "Include 5+ servings of fruits/vegetables daily",
+            "Choose whole grains over refined",
+            "Stay hydrated",
+            "Limit processed foods",
+            "Monitor portion sizes"
+        ],
+        "resources": [
+            "https://www.nutrition.gov",
+            "https://www.choosemyplate.gov"
+        ]
+    },
+    "exercise": {
+        "info": "Adults should aim for at least 150 minutes of moderate aerobic activity weekly, plus strength training twice a week.",
+        "tips": [
+            "Start slowly and gradually increase",
+            "Find activities you enjoy",
+            "Include both cardio and strength training",
+            "Stay consistent",
+            "Listen to your body"
+        ],
+        "resources": [
+            "https://www.cdc.gov/physicalactivity",
+            "https://www.acsm.org"
+        ]
+    },
+    "sleep": {
+        "info": "Adults need 7-9 hours of quality sleep nightly. Maintain consistent sleep schedule and good sleep hygiene.",
+        "tips": [
+            "Keep regular sleep schedule",
+            "Create relaxing bedtime routine",
+            "Avoid screens before bed",
+            "Make bedroom dark and cool",
+            "Limit caffeine and alcohol"
+        ],
+        "resources": [
+            "https://www.sleepfoundation.org",
+            "https://www.cdc.gov/sleep"
+        ]
+    },
+    "stress management": {
+        "info": "Practice relaxation techniques, regular exercise, adequate sleep, and seek support when needed.",
+        "tips": [
+            "Try deep breathing exercises",
+            "Practice mindfulness",
+            "Maintain social connections",
+            "Exercise regularly",
+            "Get enough sleep"
+        ],
+        "resources": [
+            "https://www.nimh.nih.gov/health/topics/coping-with-stress",
+            "https://www.apa.org/topics/stress"
+        ]
+    },
+    "preventive care": {
+        "info": "Regular check-ups, vaccinations, screenings, and healthy lifestyle choices are key to prevention.",
+        "tips": [
+            "Schedule annual check-ups",
+            "Stay up-to-date on vaccinations",
+            "Follow screening guidelines",
+            "Maintain healthy lifestyle",
+            "Know your family history"
+        ],
+        "resources": [
+            "https://www.cdc.gov/prevention",
+            "https://www.uspreventiveservicestaskforce.org"
+        ]
+    }
+}
